@@ -1,0 +1,50 @@
+r           = 0.3e-3;
+width       = cylinder2strip(r);
+feedheight  = 3*r;
+D           = 56e-3;
+radius      = D/2;
+turns       = 17.5;
+pitch       = 11.2;
+spacing     = helixpitch2spacing(pitch,radius);
+side        = 600e-3;
+radiusGP    = side/2;
+
+fc          = 1.65e9;
+relativeBW  = 0.45; 
+BW          = relativeBW*fc;
+
+hx = helix('Radius',radius,'Width',width,'Turns',turns,...
+           'Spacing',spacing,'GroundPlaneRadius',radiusGP,...
+           'FeedStubHeight',feedheight);
+figure;
+show(hx);
+
+figure;
+pattern(hx,fc);
+
+Nf1     = 15;
+Nf2     = 20;
+fmin    = 1.2e9; 
+fmax    = 2.1e9; 
+fstep   = 0.1e9;
+fband1  = linspace(fmin,1.3e9,Nf1);
+fband2  = linspace(fmin,fmax,Nf2);
+freq    = unique([fband1,fband2]);
+Nf      = length(freq);
+D       = nan(1,Nf);
+f_eng   = freq./1e9;
+f_str   = 'G';
+fig1 = figure;
+for i = 1:length(freq)
+    D(i) = pattern(hx,freq(i),0,90);
+    figure(fig1)
+    plot(f_eng,D,'x-')
+    grid on
+    axis([f_eng(1) f_eng(end) 9 16 ])
+    xlabel(['Frequency (' f_str 'Hz)'])
+    ylabel('Directivity (dBi)')
+    title('Peak Directivity Variation vs. Frequency')
+    drawnow
+end
+
+
